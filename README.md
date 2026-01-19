@@ -40,6 +40,6 @@ Feel free to use this tool anytime you want!
 ## Usage
 
 ```bash
-git clone https://github.com/yourname/fork-password-generator.git
-cd fork-password-generator
-python ultraniceai_pro.py
+git clone https://github.com/darbom-yt/Fork.git
+cd Fork
+python fork.py
