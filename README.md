@@ -1,10 +1,10 @@
-# FORK Password Guesser v1.0
+# FORK Password Guesser v2.3
 
 ![FORK Banner](forkuse.gif)
 
 FORK is an educational password guessing tool designed to demonstrate how easily weak passwords can be guessed using personal information.
 
-This tool guesses 1,000,000 to 10,000,000+ password candidates from just a few clues.
+This tool guesses 1 to 1,000,000 password candidates from just a few clues.
 
 ---
 
