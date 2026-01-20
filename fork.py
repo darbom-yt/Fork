@@ -11,6 +11,7 @@ VERSION = "2.3"
 TARGET_COUNT = 1_000_000
 MIN_COUNT = 1
 MAX_COUNT = 1_000_000
+BATCH_SIZE = 10000
 
 
 def leetify(word):
@@ -154,43 +155,45 @@ def main():
     desktop = Path.home() / "Desktop"
     if not desktop.exists():
         desktop = Path.cwd()
+
     name = "_".join(words).replace(" ", "").lower()
     out = desktop / (name + "_passwordsguesser.txt")
 
     print(f"\nWill generate: {TARGET_COUNT:,} passwords")
 
-    seen = set()
+    seen_count = 0
     start = time.time()
+    batch = []
 
     try:
         with open(out, "w", encoding="utf-8") as f:
-            last_print = 0.0
-            while len(seen) < TARGET_COUNT:
+            while seen_count < TARGET_COUNT:
                 for w in pool:
-                    for s in SYMBOLS:
-                        p = w + s
-                        if 8 <= len(p) <= 24 and p not in seen:
-                            seen.add(p); f.write(p + "\n")
-                    for y in YEARS:
-                        p = w + y
-                        if 8 <= len(p) <= 24 and p not in seen:
-                            seen.add(p); f.write(p + "\n")
-                    if len(seen) >= TARGET_COUNT:
-                        break
+                    for s, y in itertools.product(SYMBOLS + [""], YEARS + [""]):
+                        if seen_count >= TARGET_COUNT:
+                            break
+                        p = w + s + y
+                        if 8 <= len(p) <= 24:
+                            batch.append(p)
+                            seen_count += 1
+                        if len(batch) >= BATCH_SIZE or seen_count >= TARGET_COUNT:
+                            f.write('\n'.join(batch) + '\n')
+                            batch = []
+
                 random.shuffle(pool)
 
                 now = time.time()
-                if now - last_print >= 0.1 or len(seen) >= TARGET_COUNT:
-                    last_print = now
-                    pct = (len(seen) * 100) // TARGET_COUNT
-                    rate = int(len(seen) / (now - start)) if now > start else 0
-                    print(f"\rProgress: {draw_bar(pct)} {pct}% ({len(seen):,}/{TARGET_COUNT:,}) | {rate:,} pw/s", end="", flush=True)
+                pct = (seen_count * 100) // TARGET_COUNT
+                rate = int(seen_count / (now - start)) if now > start else 0
+                print(f"\rProgress: {draw_bar(pct)} {pct}% ({seen_count:,}/{TARGET_COUNT:,}) | {rate:,} pw/s", end="", flush=True)
 
-        print(f"\rProgress: {draw_bar(100)} 100% ({len(seen):,}/{TARGET_COUNT:,})")
-        print(f"Generated: {len(seen):,} passwords")
+        if batch:
+            f.write('\n'.join(batch) + '\n')
+
+        print(f"\rProgress: {draw_bar(100)} 100% ({TARGET_COUNT:,}/{TARGET_COUNT:,})")
+        print(f"Generated: {seen_count:,} passwords")
         print("Done!")
         print(f"Saved to: {out}")
-        print("(Desktop not found, file saved to current directory if needed)")
         print(f"Time: {int(time.time() - start)}s")
         input("\nPress ENTER to close...")
 
