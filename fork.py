@@ -152,6 +152,8 @@ def main():
     random.shuffle(pool)
 
     desktop = Path.home() / "Desktop"
+    if not desktop.exists():
+        desktop = Path.cwd()
     name = "_".join(words).replace(" ", "").lower()
     out = desktop / (name + "_passwordsguesser.txt")
 
@@ -188,6 +190,7 @@ def main():
         print(f"Generated: {len(seen):,} passwords")
         print("Done!")
         print(f"Saved to: {out}")
+        print("(Desktop not found, file saved to current directory if needed)")
         print(f"Time: {int(time.time() - start)}s")
         input("\nPress ENTER to close...")
 
